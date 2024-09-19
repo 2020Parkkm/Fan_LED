@@ -1,0 +1,55 @@
+unsigned char CS = 0;
+unsigned char PS = 0;
+unsigned char ledSTATE = 0;
+#define FAN_OFF 0
+#define FAN_LOW 1
+#define FAN_MED 2
+#define FAN_HIGH 3
+#define LED_OFF 0x01
+#define LED_LOW 0x02
+#define LED_MED 0x04
+#define LED_HIGH 0x08
+#define PBUTTON 0x10
+#define LED_ALL (LED_OFF|LED_LOW|LED_MED|LED_HIGH)
+
+void setup() {
+  DDRB |= LED_ALL;
+  DDRB &= ~PBUTTON;
+  PORTB |= LED_OFF;
+}
+
+void loop() {
+  CS = PINB & PBUTTON;
+  if (CS && !PS){
+    switch (ledSTATE)
+    {
+      case FAN_OFF:
+        PORTB &= ~LED_OFF;
+        PORTB |= LED_LOW;
+        ledSTATE = FAN_LOW;
+        break;
+
+      case FAN_LOW:
+        PORTB |= LED_LOW;
+        PORTB |= LED_MED;
+        ledSTATE = FAN_MED;
+        break;
+
+      case FAN_MED:
+        PORTB |= LED_LOW;
+        PORTB |= LED_MED;
+        PORTB |= LED_HIGH;
+        ledSTATE = FAN_HIGH;
+        break;
+
+      case FAN_HIGH:
+        PORTB &= ~LED_LOW;
+        PORTB &= ~LED_MED;
+        PORTB &= ~LED_HIGH;
+        PORTB |= LED_OFF;
+        ledSTATE = FAN_OFF;
+        break;
+    }
+  }
+  PS = CS;
+}
